@@ -2,32 +2,37 @@ import viteLogo from "/vite.svg";
 import { createSignal } from "solid-js";
 import solidLogo from "./assets/solid.svg";
 import "./App.css";
+import * as v from "@badrap/valita";
+import { createReconnectingWS } from "@solid-primitives/websocket";
+
+const Message = v.object({
+    commit: v.object({
+        record: v.object({
+            text: v.string(),
+        }),
+    }),
+});
+type Message = v.Infer<typeof Message>;
+
+const ws = createReconnectingWS("wss://jetstream2.us-west.bsky.network/subscribe?wantedCollections=app.bsky.feed.post");
+const [message, setMessage] = createSignal<Message | undefined>();
+ws.addEventListener("message", (ev) => {
+    if (typeof ev.data === "string") {
+        try {
+            const m = Message.parse(JSON.parse(ev.data), { mode: "passthrough" });
+            setMessage(m);
+        } catch {}
+    }
+});
 
 function App() {
-    const [count, setCount] = createSignal(0);
-
     return (
         <>
-            <div>
-                <a href="https://vite.dev" target="_blank">
-                    <img src={viteLogo} class="logo" alt="Vite logo" />
-                </a>
-                <a href="https://solidjs.com" target="_blank">
-                    <img src={solidLogo} class="logo solid" alt="Solid logo" />
-                </a>
-            </div>
-            <h1>Vite + Solid</h1>
             <div class="card">
-                <button onClick={() => setCount((count) => count + 1)}>
-                    count is {count()}
-                </button>
                 <p>
-                    Edit <code>src/App.tsx</code> and save to test HMR
+                    {message()?.commit.record.text}
                 </p>
             </div>
-            <p class="read-the-docs">
-                Click on the Vite and Solid logos to learn more
-            </p>
         </>
     );
 }
