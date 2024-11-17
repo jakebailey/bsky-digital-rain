@@ -11,7 +11,9 @@
     "dependencies": {
         "@badrap/valita": "^0.3.11",
         "@solid-primitives/event-listener": "^2.3.3",
+        "@solid-primitives/scheduled": "^1.4.4",
         "@solid-primitives/websocket": "^1.2.2",
+        "franc-all": "^7.2.0",
         "solid-js": "^1.9.3"
     },
     "devDependencies": {
