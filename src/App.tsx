@@ -23,7 +23,9 @@ const segmenter = new Intl.Segmenter("eng", { granularity: "word" });
 
 const ws = createReconnectingWS("wss://jetstream2.us-west.bsky.network/subscribe?wantedCollections=app.bsky.feed.post");
 
-const [words, setWords] = createStore<Record<string, number>>({});
+// const [words, setWords] = createStore<Record<string, number>>({});
+
+const words: Record<string, number> = {};
 
 ws.addEventListener("message", (ev) => {
     if (typeof ev.data !== "string") return;
@@ -38,16 +40,21 @@ ws.addEventListener("message", (ev) => {
         for (const segment of segmenter.segment(text)) {
             const word = segment.segment.trim().toLowerCase();
             if (!word || isOnlyPunctuation.test(word) || commonWords.has(word)) continue;
-            newWordsMap[word] = (newWordsMap[word] ?? 0) + 1;
+            // newWordsMap[word] = (newWordsMap[word] ?? 0) + 1;
+            newWordsMap[word] = 1; // Count each word only once per message
         }
 
-        setWords((prev) => {
-            const next = { ...prev };
-            for (const word in newWordsMap) {
-                next[word] = (next[word] ?? 0) + newWordsMap[word];
-            }
-            return next;
-        });
+        // setWords((prev) => {
+        //     const next = { ...prev };
+        //     for (const word in newWordsMap) {
+        //         next[word] = (next[word] ?? 0) + newWordsMap[word];
+        //     }
+        //     return next;
+        // });
+
+        for (const word in newWordsMap) {
+            words[word] = (words[word] ?? 0) + newWordsMap[word];
+        }
     } catch {}
 });
 
