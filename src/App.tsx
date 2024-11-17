@@ -9,7 +9,7 @@ import { createStore } from "solid-js/store";
 
 const commonWords = new Set(englishWords.split("\n").slice(0, 100));
 
-const isOnlyPunctuation = /^\p{P}+$/u;
+const isIgnored = /^(?:\p{P}+|\d+|.)$/u;
 
 const Message = v.object({
     commit: v.object({
@@ -25,7 +25,9 @@ const ws = createReconnectingWS("wss://jetstream2.us-west.bsky.network/subscribe
 
 // const [words, setWords] = createStore<Record<string, number>>({});
 
-const words: Record<string, number> = {};
+// const words: Record<string, number> = {};
+
+let recentWords: { words: Record<string, number>; timestamp: number; }[] = [];
 
 ws.addEventListener("message", (ev) => {
     if (typeof ev.data !== "string") return;
@@ -39,10 +41,15 @@ ws.addEventListener("message", (ev) => {
         const newWordsMap: Record<string, number> = {};
         for (const segment of segmenter.segment(text)) {
             const word = segment.segment.trim().toLowerCase();
-            if (!word || isOnlyPunctuation.test(word) || commonWords.has(word)) continue;
+            if (!word || isIgnored.test(word) || commonWords.has(word)) continue;
             // newWordsMap[word] = (newWordsMap[word] ?? 0) + 1;
             newWordsMap[word] = 1; // Count each word only once per message
         }
+
+        recentWords.push({
+            words: newWordsMap,
+            timestamp: Date.now(),
+        });
 
         // setWords((prev) => {
         //     const next = { ...prev };
@@ -52,13 +59,26 @@ ws.addEventListener("message", (ev) => {
         //     return next;
         // });
 
-        for (const word in newWordsMap) {
-            words[word] = (words[word] ?? 0) + newWordsMap[word];
-        }
+        // for (const word in newWordsMap) {
+        //     words[word] = (words[word] ?? 0) + newWordsMap[word];
+        // }
     } catch {}
 });
 
-const sortedWords = createPolled(() => Object.entries(words).sort((a, b) => b[1] - a[1]).slice(0, 50), 1000);
+// const sortedWords = createPolled(() => Object.entries(words).sort((a, b) => b[1] - a[1]).slice(0, 50), 1000);
+
+const sortedWords = createPolled(() => {
+    const words: Record<string, number> = {};
+    for (const { words: recent } of recentWords) {
+        for (const word in recent) {
+            words[word] = (words[word] ?? 0) + recent[word];
+        }
+    }
+
+    const idx = recentWords.findIndex((r) => Date.now() - r.timestamp < 1000 * 60 * 5);
+    if (idx >= 0) recentWords = recentWords.slice(idx);
+    return Object.entries(words).sort((a, b) => b[1] - a[1]).slice(0, 50);
+}, 200);
 
 function App() {
     return (
