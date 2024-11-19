@@ -21,15 +21,15 @@ const maxMessageLength = 1000;
 ws.addEventListener("message", (ev) => {
     if (typeof ev.data !== "string") return;
 
-    try {
-        const m = Message.parse(JSON.parse(ev.data), { mode: "passthrough" });
-        const text = m.commit.record.text;
+    const m = Message.try(JSON.parse(ev.data), { mode: "passthrough" });
+    if (m.ok) {
+        const text = m.value.commit.record.text;
         if (isIgnored.test(text) || franc(text) !== "eng") return;
         messages.push(text);
         if (messages.length > maxMessageLength) {
             messages = messages.slice(-maxMessageLength);
         }
-    } catch {}
+    }
 });
 
 function getSentence(): string {
