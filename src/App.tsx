@@ -73,9 +73,19 @@ function App() {
             drops[x] = { y: 1, sentence: getSentence(), charIndex: 0 };
         }
 
+        let lastTime = 0;
+        const frameDuration = 33; // 33ms for approximately 30fps
+
         // drawing the sentences
-        function draw() {
+        function draw(time: number) {
             if (!ctx) return;
+
+            const deltaTime = time - lastTime;
+            if (deltaTime < frameDuration) {
+                requestAnimationFrame(draw);
+                return;
+            }
+            lastTime = time;
 
             // Black BG for the canvas
             // translucent BG to show trail
@@ -109,12 +119,14 @@ function App() {
                     drop.charIndex = 0;
                 }
             }
+
+            requestAnimationFrame(draw);
         }
 
-        const interval = setInterval(draw, 33);
+        requestAnimationFrame(draw);
 
         onCleanup(() => {
-            clearInterval(interval);
+            // No need to clear interval since we're using requestAnimationFrame
         });
     });
 
