@@ -124,22 +124,31 @@ function App() {
         canvas.height = window.innerHeight;
         canvas.width = window.innerWidth;
 
-        // chinese characters - taken from the unicode charset
-        const chars = "田由甲申甴电甶男甸甹町画甼甽甾甿畀畁畂畃畄畅畆畇畈畉畊畋界畍畎畏畐畑";
-        // converting the string into an array of single characters
-        const chinese = chars.split("");
+        // array of sentences to print
+        const sentences = [
+            "The Matrix has you...",
+            "Follow the white rabbit.",
+            "Wake up, Neo...",
+            "Knock, knock, Neo.",
+            "Welcome to the real world.",
+            "There is no spoon.",
+            "I know kung fu.",
+            "Free your mind.",
+            "The answer is out there, Neo.",
+            "It's the question that drives us.",
+        ];
 
         const font_size = 16;
         const columns = Math.floor(canvas.width / font_size); // number of columns for the rain
         // an array of drops - one per column
-        const drops: number[] = [];
+        const drops: { y: number; sentenceIndex: number; charIndex: number; }[] = [];
         // x below is the x coordinate
         // 1 = y co-ordinate of the drop(same for every drop initially)
         for (let x = 0; x < columns; x++) {
-            drops[x] = 1;
+            drops[x] = { y: 1, sentenceIndex: Math.floor(Math.random() * sentences.length), charIndex: 0 };
         }
 
-        // drawing the characters
+        // drawing the sentences
         function draw() {
             if (!ctx) return;
 
@@ -149,22 +158,32 @@ function App() {
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             ctx.fillStyle = "#0F0"; // green text
-            ctx.font = font_size + "px arial";
+            ctx.font = font_size + "px monospace";
             // looping over drops
             for (let i = 0; i < drops.length; i++) {
-                // a random chinese character to print
-                const text = chinese[Math.floor(Math.random() * chinese.length)];
-                // x = i*font_size, y = value of drops[i]*font_size
-                ctx.fillText(text, i * font_size, drops[i] * font_size);
+                const drop = drops[i];
+                const sentence = sentences[drop.sentenceIndex];
+                const text = sentence[drop.charIndex];
+
+                // x = i*font_size, y = value of drops[i].y*font_size
+                ctx.fillText(text, i * font_size, drop.y * font_size);
 
                 // sending the drop back to the top randomly after it has crossed the screen
                 // adding a randomness to the reset to make the drops scattered on the Y axis
-                if (drops[i] * font_size > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
+                if (drop.y * font_size > canvas.height && Math.random() > 0.975) {
+                    drop.y = 0;
+                    drop.sentenceIndex = Math.floor(Math.random() * sentences.length);
+                    drop.charIndex = 0;
                 }
 
                 // incrementing Y coordinate
-                drops[i]++;
+                drop.y++;
+
+                // incrementing character index
+                drop.charIndex++;
+                if (drop.charIndex >= sentence.length) {
+                    drop.charIndex = 0;
+                }
             }
         }
 
