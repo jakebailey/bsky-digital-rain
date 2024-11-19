@@ -32,7 +32,7 @@ ws.addEventListener("message", (ev) => {
     }
 });
 
-function getSentence(): string {
+function getMessage(): string {
     let sentence = messages.at(0);
     if (!sentence) return " ";
     messages = messages.slice(1);
@@ -70,7 +70,7 @@ function App() {
         // x below is the x coordinate
         // 1 = y co-ordinate of the drop(same for every drop initially)
         for (let x = 0; x < columns; x++) {
-            drops[x] = { y: 1, sentence: getSentence(), charIndex: 0 };
+            drops[x] = { y: 1, sentence: getMessage(), charIndex: 0 };
         }
 
         let lastTime = 0;
@@ -106,7 +106,7 @@ function App() {
                 // adding a randomness to the reset to make the drops scattered on the Y axis
                 if (drop.y * font_size > canvas.height && Math.random() > 0.975) {
                     drop.y = 0;
-                    drop.sentence = getSentence();
+                    drop.sentence = getMessage();
                     drop.charIndex = 0;
                 }
 
