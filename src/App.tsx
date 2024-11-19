@@ -46,7 +46,6 @@ function getSentence(): string {
     // remove URLs
     sentence = sentence.replace(/https?:\/\/\S+/g, "");
 
-    console.log(sentence);
     return sentence + " ";
 }
 
