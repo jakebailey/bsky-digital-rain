@@ -40,11 +40,12 @@ function getSentence(): string {
     // sanitize to just regular word characters, punctuation, numbers, etc
     // should allow accents and such, using regex unicode classes
     sentence = sentence.replace(/[^\p{L}\p{N}\p{P}\s]/gu, "");
-    // remove extra whitespace
-    sentence = sentence.replace(/\s+/g, " ");
 
     // remove URLs
     sentence = sentence.replace(/https?:\/\/\S+/g, "");
+
+    // remove extra whitespace
+    sentence = sentence.replace(/\s+/g, " ");
 
     return sentence + " ";
 }
