@@ -96,7 +96,7 @@ function App() {
         canvas.height = window.innerHeight;
         canvas.width = window.innerWidth;
 
-        const font_size = 16;
+        const font_size = 20;
         const columns = Math.floor(canvas.width / font_size); // number of columns for the rain
         // an array of drops - one per column
         const drops: { y: number; sentence: string; charIndex: number; }[] = [];
