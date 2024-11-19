@@ -50,6 +50,9 @@ function getSentence(): string {
     return sentence + " ";
 }
 
+// based on:
+// - https://jsfiddle.net/w5wsudd0/
+// - https://www.solidjs.com/tutorial/bindings_refs
 function App() {
     let canvas!: HTMLCanvasElement;
 
