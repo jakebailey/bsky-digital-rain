@@ -15,8 +15,45 @@ const Message = v.object({
 
 const ws = createReconnectingWS("wss://jetstream2.us-west.bsky.network/subscribe?wantedCollections=app.bsky.feed.post");
 
-let messages: string[] = [];
-const maxMessageLength = 1000;
+class RingBuffer<T> {
+    private buffer: T[];
+    private size: number;
+    private start: number;
+    private end: number;
+    private count: number;
+
+    constructor(size: number) {
+        this.size = size;
+        this.buffer = new Array(size);
+        this.start = 0;
+        this.end = 0;
+        this.count = 0;
+    }
+
+    push(item: T) {
+        this.buffer[this.end] = item;
+        this.end = (this.end + 1) % this.size;
+        if (this.count === this.size) {
+            this.start = (this.start + 1) % this.size;
+        } else {
+            this.count++;
+        }
+    }
+
+    shift(): T | undefined {
+        if (this.count === 0) return undefined;
+        const item = this.buffer[this.start];
+        this.start = (this.start + 1) % this.size;
+        this.count--;
+        return item;
+    }
+
+    isEmpty(): boolean {
+        return this.count === 0;
+    }
+}
+
+const messages = new RingBuffer<string>(1000);
 
 ws.addEventListener("message", (ev) => {
     if (typeof ev.data !== "string") return;
@@ -26,28 +63,24 @@ ws.addEventListener("message", (ev) => {
         const text = m.value.commit.record.text;
         if (isIgnored.test(text) || franc(text) !== "eng") return;
         messages.push(text);
-        if (messages.length > maxMessageLength) {
-            messages = messages.slice(-maxMessageLength);
-        }
     }
 });
 
 function getMessage(): string {
-    let sentence = messages.at(0);
-    if (!sentence) return " ";
-    messages = messages.slice(1);
+    let message = messages.shift();
+    if (!message) return " ";
 
     // sanitize to just regular word characters, punctuation, numbers, etc
     // should allow accents and such, using regex unicode classes
-    sentence = sentence.replace(/[^\p{L}\p{N}\p{P}\s]/gu, "");
+    message = message.replace(/[^\p{L}\p{N}\p{P}\s]/gu, "");
 
     // remove URLs
-    sentence = sentence.replace(/https?:\/\/\S+/g, "");
+    message = message.replace(/https?:\/\/\S+/g, "");
 
     // remove extra whitespace
-    sentence = sentence.replace(/\s+/g, " ");
+    message = message.replace(/\s+/g, " ");
 
-    return sentence + " ";
+    return message + " ";
 }
 
 // based on:
