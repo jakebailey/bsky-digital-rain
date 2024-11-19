@@ -1,7 +1,7 @@
 import * as v from "@badrap/valita";
 import { createReconnectingWS } from "@solid-primitives/websocket";
 import { franc } from "franc-all";
-import { onCleanup, onMount } from "solid-js";
+import { onMount } from "solid-js";
 
 const isIgnored = /^(?:\p{P}+|\d+|.)$/u;
 
@@ -13,7 +13,12 @@ const Message = v.object({
     }),
 });
 
-const ws = createReconnectingWS("wss://jetstream2.us-west.bsky.network/subscribe?wantedCollections=app.bsky.feed.post");
+// Guess which URL based on local timezone; if it's Central or more east, use east, otherwise use west
+const timezone = new Date("2024-01-01").getTimezoneOffset();
+const jetstream = timezone < (6 * 60) ? "jetstream2.us-east.bsky.network" : "jetstream2.us-west.bsky.network";
+console.log(`Using Jetstream at ${jetstream}`);
+
+const ws = createReconnectingWS(`wss://${jetstream}/subscribe?wantedCollections=app.bsky.feed.post`);
 
 class RingBuffer<T> {
     private buffer: T[];
@@ -157,10 +162,6 @@ function App() {
         }
 
         requestAnimationFrame(draw);
-
-        onCleanup(() => {
-            // No need to clear interval since we're using requestAnimationFrame
-        });
     });
 
     return <canvas ref={canvas} />;
