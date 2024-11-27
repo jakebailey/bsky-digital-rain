@@ -14,9 +14,9 @@ importers:
       '@solid-primitives/websocket':
         specifier: ^1.2.2
         version: 1.2.2(solid-js@1.9.3)
-      franc-all:
-        specifier: ^7.2.0
-        version: 7.2.0
+      franc-min:
+        specifier: ^6.2.0
+        version: 6.2.0
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -492,8 +492,8 @@ packages:
     resolution: {integrity: sha512-WUj2qlxaQtO4g6Pq5c29GTcWGDyd8itL8zTlipgECz3JesAiiOKotd8JU6otB3PACgG6xkJUyVhboMS+bje/jA==}
     engines: {node: '>=6'}
 
-  franc-all@7.2.0:
-    resolution: {integrity: sha512-ZR6ciLQTDBaOvBdkOd8+vqDzaLtmIXRa9GCzcAlaBpqNAKg9QrtClPmqiKac5/xZXfCZGMo1d8dIu1T0BLhHEg==}
+  franc-min@6.2.0:
+    resolution: {integrity: sha512-1uDIEUSlUZgvJa2AKYR/dmJC66v/PvGQ9mWfI9nOr/kPpMFyvswK0gPXOwpYJYiYD008PpHLkGfG58SPjQJFxw==}
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -1061,7 +1061,7 @@ snapshots:
 
   escalade@3.2.0: {}
 
-  franc-all@7.2.0:
+  franc-min@6.2.0:
     dependencies:
       trigram-utils: 2.0.1
 

@@ -1,6 +1,6 @@
 import * as v from "@badrap/valita";
 import { createReconnectingWS } from "@solid-primitives/websocket";
-import { franc } from "franc-all";
+import { franc } from "franc-min";
 import { onMount } from "solid-js";
 
 const isIgnored = /^(?:\p{P}+|\d+|.)$/u;
